@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/users/contact_model.dart';
+import 'package:fyp/providers/socketio_provider.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:fyp/views/chat_view.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -28,18 +26,8 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
   }
 
   void connect() { 
-    socket = IO.io('${dotenv.get('API_BASE_URL')}/messageprotocol', IO.OptionBuilder().setTransports(['websocket']).build());
-    socket.onConnect((_) {
-      var messages = ref.read(userProvider).messages;
-      messages?.forEach((room) => socket.emit('join', room['_id']));
-      socket.on('message', (data) {
-        log('message: ${data['room']}: ${data['msg']}');
-        chatViewKey.currentState?.receiveMessage(data);
-      });
-    });
-    socket.onConnectError((error) {
-      log('connection error: $error');
-    });
+    socket = ref.read(socketIOProvider);
+    ref.read(socketIOProvider.notifier).initSetup(ref);
   }
 
   Color _getOnlineStatusColor(OnlineStatus status) {
