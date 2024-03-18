@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fyp/classes/api/api_wrapper.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -35,6 +39,14 @@ class _ChatViewState extends ConsumerState<ChatView> {
   String getRoomID() {
     String oid = widget.contact.id.oid;
     List<Map<String, dynamic>> rooms = ref.read(userProvider.notifier).getMessages(oid) ?? [];
+    
+    rooms[0]['messages'].forEach((message) {
+      final msg = message['message'];
+      setState(() {
+      messages.add(msg);
+      });
+    });
+
     return rooms[0]['_id'];
   }
 
@@ -57,9 +69,19 @@ class _ChatViewState extends ConsumerState<ChatView> {
         'msg': message,
       });
 
+      ApiWrapper.sendPostReq('/message/send', {
+        "to": widget.contact.id.oid,
+        "message": {
+          "from": ref.read(userProvider).id.oid,
+          "message": message,
+        },
+      });
+
       setState(() {
         messages.add(message);
       });
+
+      ref.read(userProvider.notifier).addMessage(roomID, message);
     }
 
     messageController.clear();

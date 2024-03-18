@@ -9,19 +9,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiWrapper {
   static final Future<SharedPreferences> apiPreferences = SharedPreferences.getInstance();
 
-  static Future<Response> sendPostReq(String endpoint, Map<String, String> body) async {
+  static Future<Response> sendPostReq(String endpoint, Map<String, dynamic> body) async {
     String url = '${dotenv.get('API_BASE_URL')}$endpoint';
+    String token = await apiPreferences.then((prefs) => prefs.getString('accessToken') ?? '');
     var response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode(body),
     );
 
     if (response.statusCode != 200) {
-      var body = jsonDecode(response.body);
-      throw Exception(body['error']);
+      // var body = jsonDecode(response.body);
+      // throw Exception(body['error']);
+      print(response.body);
     }
 
     return response;

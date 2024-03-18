@@ -3,6 +3,14 @@ import 'package:mongo_dart/mongo_dart.dart';
 
 enum OnlineStatus { online, offline }
 
+OnlineStatus convertByName(String status) {
+  try {
+    return OnlineStatus.values.byName(status);
+  } catch (_) {
+    return OnlineStatus.offline;
+  }
+}
+
 class ContactModel {
   ObjectId id;
   Image? profilePicture;
@@ -25,7 +33,7 @@ class ContactModel {
     profilePicture: json['profilePicture'],
     username: json['username'] as String,
     lastSeenTime: json['lastSeenTime'],
-    onlineStatus: json['onlineStatus'],
+    onlineStatus: convertByName(json['onlineStatus'] ?? ''),
     lastMessage: json['lastMessage'], 
   );
 

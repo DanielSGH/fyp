@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/users/user_model.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 class UserNotifier extends StateNotifier<User> {
-  UserNotifier() : super(User(username: ''));
+  UserNotifier() : super(User(username: '', id: ObjectId()));
 
   void setUser(User user) {
     state = user;
@@ -20,6 +21,18 @@ class UserNotifier extends StateNotifier<User> {
     });
 
     return ret;
+  }
+
+  void addMessage(String roomID, String message) {
+    state.messages?.forEach((room) {
+      if (room['_id'] == roomID) {
+        room['messages'].add({
+          'message': message,
+          'from': state.id.oid,
+          'at': DateTime.now(),
+        });
+      }
+    });
   }
 }
 
