@@ -26,28 +26,65 @@ class ChatView extends ConsumerStatefulWidget {
 
 class _ChatViewState extends ConsumerState<ChatView> {
   List<String> messages = [];
-  late String roomID;
+  String? roomID;
 
   TextEditingController messageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    roomID = getRoomID();
-  }
 
-  String getRoomID() {
     String oid = widget.contact.id.oid;
     List<Map<String, dynamic>> rooms = ref.read(userProvider.notifier).getMessages(oid) ?? [];
-    
-    rooms[0]['messages'].forEach((message) {
-      final msg = message['message'];
+
+    if (rooms.isNotEmpty) {
       setState(() {
-      messages.add(msg);
+        roomID = rooms[0]['_id'];
       });
+    }
+
+    getRoomIDHelper();
+    getMessages();
+  }
+
+  void getRoomIDHelper() async {
+    if (roomID != null) {
+      return;
+    }
+
+    var id = await getRoomID();
+    setState(() {
+      roomID = id;
     });
 
-    return rooms[0]['_id'];
+    ref.read(userProvider.notifier).addRoomAndContact(roomID!, widget.contact);
+  }
+
+  Future<String?> getRoomID() async {
+    var res = await ApiWrapper.sendPostReq('/message/send', {
+      "to": widget.contact.id.oid,
+    });
+
+    return jsonDecode(res.body)['roomID'];
+  }
+
+  void getMessages() {
+    var rooms = ref.read(userProvider.notifier).getMessages(widget.contact.id.oid)!;
+
+    if (!rooms.isNotEmpty) {
+      return;
+    }
+
+    try {
+      rooms[0]['messages'].forEach((message) {
+        final msg = message['message'];
+        setState(() {
+          messages.add(msg);
+        });
+      });
+    } catch (e) {
+      log('Error: $e');
+    }
   }
 
   void receiveMessage(data) {
@@ -63,26 +100,35 @@ class _ChatViewState extends ConsumerState<ChatView> {
   void sendMessage() {
     final message = messageController.text;
     
-    if (message.isNotEmpty) {
-      widget.socket.emit('message', {
-        'room': roomID,
-        'msg': message,
-      });
-
-      ApiWrapper.sendPostReq('/message/send', {
-        "to": widget.contact.id.oid,
-        "message": {
-          "from": ref.read(userProvider).id.oid,
-          "message": message,
-        },
-      });
-
-      setState(() {
-        messages.add(message);
-      });
-
-      ref.read(userProvider.notifier).addMessage(roomID, message);
+    if (!message.isNotEmpty) {
+      return;
     }
+
+    if (roomID == null) {
+      return;
+    }
+
+    widget.socket.emit('message', {
+      'room': roomID,
+      'msg': message,
+    });
+
+    ApiWrapper.sendPostReq('/message/send', {
+      "to": widget.contact.id.oid,
+      "message": {
+        "from": ref.read(userProvider).id.oid,
+        "message": message,
+      },
+    });
+
+    setState(() {
+      messages.add(message);
+    });
+
+    ref.read(userProvider.notifier).addMessage(roomID!, message);
+
+    print(roomID);
+    
 
     messageController.clear();
   }

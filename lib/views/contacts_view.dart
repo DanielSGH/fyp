@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/users/contact_model.dart';
@@ -69,46 +71,86 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
 
   @override
   Widget build(BuildContext context) {
+    var newPartners = ref.watch(userProvider).newPartners;
+    List<ContactModel> combinedContacts = [...contacts, ...newPartners ?? []];
+    // inspect(contacts);
+
     return Scaffold(
       body: ListView.builder(
-        itemCount: contacts.length,
+        itemCount: combinedContacts.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            onTap: () async {
-              activeChat = ChatView(contact: contacts[index], socket: socket);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
-            },
-            tileColor: Colors.black12,
-            leading: Stack(
-              children: [
-                CircleAvatar(
-                  backgroundImage: contacts[index].profilePicture?.image ?? const NetworkImage('https://thispersondoesnotexist.com/')
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _getOnlineStatusColor(contacts[index].onlineStatus ?? OnlineStatus.offline),
-                    ),
-                    child: _getIconForOnlineStatus(contacts[index].onlineStatus ?? OnlineStatus.offline),
-                  ),
-                ),
-              ],
-            ),
-            title: Text(contacts[index].username),
-            subtitle: Column(
+          if (index == 0 && contacts.isNotEmpty) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _getLastSeenTimeText(contacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
-                if (contacts[index].lastMessage != null && contacts[index].lastMessage!.isNotEmpty)
-                  Text(contacts[index].lastMessage ?? ''),
+                const Text(
+                  'Friends',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                contactTile(index, context, contacts),
               ],
-            ),
-          );
+            );
+          }
+
+          if (index == contacts.length) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'New Partners',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                contactTile(index, context, combinedContacts),
+              ],
+            );
+          }
+
+          return contactTile(index, context, combinedContacts);
         },
+      ),
+    );
+  }
+
+  ListTile contactTile(int index, BuildContext context, List<ContactModel> whichContacts) {
+    return ListTile(
+      onTap: () async {
+        activeChat = ChatView(contact: whichContacts[index], socket: socket);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
+      },
+      tileColor: Colors.black12,
+      leading: Stack(
+        children: [
+          CircleAvatar(
+            backgroundImage: whichContacts[index].profilePicture?.image ?? const NetworkImage('https://thispersondoesnotexist.com/')
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _getOnlineStatusColor(whichContacts[index].onlineStatus ?? OnlineStatus.offline),
+              ),
+              child: _getIconForOnlineStatus(whichContacts[index].onlineStatus ?? OnlineStatus.offline),
+            ),
+          ),
+        ],
+      ),
+      title: Text(whichContacts[index].username),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _getLastSeenTimeText(whichContacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
+          if (whichContacts[index].lastMessage != null && whichContacts[index].lastMessage!.isNotEmpty)
+            Text(whichContacts[index].lastMessage ?? ''),
+        ],
       ),
     );
   }

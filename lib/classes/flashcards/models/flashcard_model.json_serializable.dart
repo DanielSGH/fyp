@@ -5,6 +5,7 @@ DateTime dateTimeHandler(json, key) {
 }
 
 FlashCard _$FlashCardFromJson(Map<String, dynamic> json) => FlashCard()
+  ..id = ObjectId.parse(json['_id'])
   ..word = json['word'] as String
   ..english = json['english'] as String
   ..example = json['example'] as String
@@ -19,6 +20,7 @@ FlashCard _$FlashCardFromJson(Map<String, dynamic> json) => FlashCard()
   ..lastReview = dateTimeHandler(json, 'lastReview');
 
 Map<String, dynamic> _$FlashCardToJson(FlashCard instance) => <String, dynamic>{
+  '_id': instance.id.toJson(),
   'word': instance.word,
   'english': instance.english,
   'example': instance.example,

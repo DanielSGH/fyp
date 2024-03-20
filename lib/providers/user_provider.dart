@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/classes/users/user_model.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
@@ -33,6 +36,17 @@ class UserNotifier extends StateNotifier<User> {
         });
       }
     });
+  }
+
+  void addRoomAndContact(String room, ContactModel contact) {
+    state.contacts?.add(contact);
+    state.messages?.add({
+      '_id': room,
+      'participants': [{"_id": contact.id.oid, "username": contact.username}, {"_id": state.id.oid, "username": state.username}],
+      'messages': [],
+    });
+
+    state.newPartners?.removeWhere((element) => element.id.oid == contact.id.oid);
   }
 }
 

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
+import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/users/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,9 +24,8 @@ class ApiWrapper {
     );
 
     if (response.statusCode != 200) {
-      // var body = jsonDecode(response.body);
-      // throw Exception(body['error']);
-      print(response.body);
+      var body = jsonDecode(response.body);
+      throw Exception(body['error']);
     }
 
     return response;
@@ -66,7 +67,7 @@ class ApiWrapper {
     return User.fromJson(userInfo);
   }
 
-  static Future<void> authUser(String username, String password, [String? email]) async {
+  static Future<void> authUser(String username, String password, String selectedLanguage, [String? email]) async {
     Response response;
 
     if (email == null) {
@@ -79,6 +80,7 @@ class ApiWrapper {
         'username': username,
         'password': password,
         'email': email,
+        'selectedLanguage': selectedLanguage,
       });
     }
 
@@ -129,5 +131,13 @@ class ApiWrapper {
 
   static bool isOk(int statusCode) {
     return statusCode >= 200 && statusCode < 300;
+  }
+
+  static void updateFlashcard(FlashCard oldCard, FlashCard dueCard, String selectedLanguage) {
+    sendPostReq('/user/updateFlashcard', {
+      'oldCard': oldCard.id.oid,
+      'newCard': dueCard.toJson(),
+      'selectedLanguage': selectedLanguage
+    });
   }
 }

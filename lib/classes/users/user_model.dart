@@ -10,7 +10,8 @@ class User {
   final String username;
   final List<FlashCard>? flashcards;
   final List<Map<String, dynamic>>? messages;
-  final List<ContactModel>? contacts;
+  final List<ContactModel>? contacts, newPartners;
+  final List<String>? selectedLanguages;
   
   User({
     required this.id,
@@ -18,6 +19,8 @@ class User {
     this.flashcards,
     this.messages,
     this.contacts,
+    this.newPartners,
+    this.selectedLanguages,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -32,6 +35,12 @@ class User {
     contacts: (json['contacts'] as List<dynamic>?)
         ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
         .toList(),
+    newPartners: (json['newPartners'] as List<dynamic>?)
+        ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    selectedLanguages: (json['selectedLanguages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
   );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -40,6 +49,8 @@ class User {
       'flashcards': flashcards,
       'messages': messages,
       'contacts': contacts,
+      'newPartners': newPartners,
+      'selectedLanguages': selectedLanguages,
     };
 
   // Add these methods

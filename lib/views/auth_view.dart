@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
@@ -27,7 +29,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   void checkNeedsSignup() async {
     var prefs = await ApiWrapper.apiPreferences;
-    // prefs.clear();
+    prefs.clear();
 
     if (!prefs.containsKey('refreshToken')) {
       setState(() {
@@ -37,9 +39,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
     }
 
     try {
-      if (!await ApiWrapper.refreshAccessToken()) {
-        return;
-      }
+      await ApiWrapper.refreshAccessToken();
 
       User user = await ApiWrapper.getUserInfo();
       ref.read(userProvider.notifier).setUser(user);
@@ -56,7 +56,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   void _handleAuth(Map<String, String> content, context) async { 
     try {
-      await ApiWrapper.authUser(content['username']!, content['password']!, content['email']);
+      await ApiWrapper.authUser(content['username']!, content['password']!, content['selectedLanguage']!, content['email']);
       User user = await ApiWrapper.getUserInfo();
       ref.read(userProvider.notifier).setUser(user);
       gotoHomePage();
@@ -71,6 +71,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
           content: Text(e.toString()),
         )
       );
+
+      rethrow;
     }
   }
 
@@ -104,7 +106,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 {
                   "username": _usernameController.text, 
                   if (isSigningUp) "email": _emailController.text, 
-                  "password": _passwordController.text
+                  "password": _passwordController.text,
+                  "selectedLanguage": "russian"
                 }, 
                 context
               )),

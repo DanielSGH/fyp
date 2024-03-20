@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fyp/classes/api/api_wrapper.dart';
 import 'package:fyp/classes/flashcards/enums/card_rating.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/flashcards/fsrs_api.dart';
-import 'package:fyp/classes/db/mongodb.dart';
 import 'package:fyp/providers/user_provider.dart';
 
 import 'package:fyp/widgets/flashcard_widget.dart';
@@ -25,15 +25,13 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
   FSRS fsrs = FSRS();
 
   Future<void> loadFlashcards() async {
-    // TODO: If failed to load flashcards, pop up with error message
-    final List<Map<String, dynamic>> response = await MongoDB.getFlashcards('russian');
+    dueCards = ref.read(userProvider).flashcards ?? <FlashCard>[
+      FlashCard()
+    ];
 
-    dueCards = List<FlashCard>.from(response.map((card) => FlashCard.fromJson(card)));
     dueCards.retainWhere((card) {
       return card.due.isBefore(DateTime.now());
     });
-
-    inspect(dueCards);
 
     setState(() {
       currentCard = dueCards[0];
@@ -57,14 +55,14 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
       body: FlashcardWidget(
         flashCard: currentCard,
         changeCard: (CardRating rating) {
+          int idx = dueCards.indexOf(currentCard);
+          FlashCard oldCard = dueCards[idx];
           setState(() {
-            int idx = dueCards.indexOf(currentCard);
-            FlashCard oldCard = dueCards[idx];
             dueCards[idx] = fsrs.repeat(currentCard, DateTime.now())[rating]?.card as FlashCard;
             currentCard = dueCards.elementAt(idx + 1);
-    
-            MongoDB.updateFlashcard('russian', {"word": oldCard.word}, dueCards[idx]);
           });
+
+          ApiWrapper.updateFlashcard(oldCard, dueCards[idx], ref.read(userProvider).selectedLanguages![0]);
         },
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:fyp/classes/flashcards/enums/card_state.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 part 'flashcard_model.json_serializable.dart';
 
 class FlashCard {
+  ObjectId id;
   String word;
   String english;
   String example;
@@ -18,6 +20,7 @@ class FlashCard {
   late DateTime lastReview;
 
   FlashCard._({
+    required this.id,
     required this.word,
     required this.english,
     required this.example,
@@ -33,6 +36,7 @@ class FlashCard {
   });
 
   FlashCard() :
+    id = ObjectId(),
     word = '',
     english = '',
     example = '',
@@ -50,6 +54,7 @@ class FlashCard {
     required FlashCard obj,
   }) {
     return FlashCard._(
+      id: obj.id,
       word: obj.word,
       english: obj.english,
       example: obj.example,
