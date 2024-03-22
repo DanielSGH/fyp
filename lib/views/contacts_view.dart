@@ -1,12 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/providers/socketio_provider.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:fyp/views/chat_view.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
 
 class ContactsView extends ConsumerStatefulWidget {
   const ContactsView({super.key});
@@ -16,7 +14,7 @@ class ContactsView extends ConsumerStatefulWidget {
 }
 
 class _ContactsViewState extends ConsumerState<ContactsView> {
-  late IO.Socket socket;
+  late Socket socket;
   List<ContactModel> contacts = [];
   late ChatView activeChat;
 

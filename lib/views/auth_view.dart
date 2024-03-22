@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
@@ -29,7 +27,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   void checkNeedsSignup() async {
     var prefs = await ApiWrapper.apiPreferences;
-    prefs.clear();
+    // prefs.clear();
 
     if (!prefs.containsKey('refreshToken')) {
       setState(() {

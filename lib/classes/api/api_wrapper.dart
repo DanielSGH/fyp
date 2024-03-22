@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/users/user_model.dart';

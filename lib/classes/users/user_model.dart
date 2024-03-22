@@ -55,5 +55,5 @@ class User {
 
   // Add these methods
   static ObjectId _idFromJson(String id) => ObjectId.fromHexString(id);
-  static String _idToJson(ObjectId id) => id.toHexString();
+  static String _idToJson(ObjectId id) => id.oid;
 }

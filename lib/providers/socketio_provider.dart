@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:fyp/views/chat_view.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
 
-class SocketIONotifier extends StateNotifier<IO.Socket> {
-  SocketIONotifier() : super(IO.io('${dotenv.get('API_BASE_URL')}/messageprotocol', 
-    IO.OptionBuilder()
+class SocketIONotifier extends StateNotifier<Socket> {
+  SocketIONotifier() : super(io('${dotenv.get('API_BASE_URL')}/messageprotocol', 
+    OptionBuilder()
     .setTransports(['websocket'])
     .build()));
 
@@ -33,4 +33,4 @@ class SocketIONotifier extends StateNotifier<IO.Socket> {
   }
 }
 
-final socketIOProvider = StateNotifierProvider<SocketIONotifier, IO.Socket>((ref) => SocketIONotifier());
+final socketIOProvider = StateNotifierProvider<SocketIONotifier, Socket>((ref) => SocketIONotifier());

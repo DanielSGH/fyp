@@ -6,14 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/providers/user_provider.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
 
 // ignore: library_private_types_in_public_api
 final GlobalKey<_ChatViewState> chatViewKey = GlobalKey<_ChatViewState>();
 
 class ChatView extends ConsumerStatefulWidget {
   final ContactModel contact;
-  final IO.Socket socket;
+  final Socket socket;
 
   ChatView({
     required this.contact,
@@ -125,10 +125,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
       messages.add(message);
     });
 
-    ref.read(userProvider.notifier).addMessage(roomID!, message);
-
-    print(roomID);
-    
+    ref.read(userProvider.notifier).addMessage(roomID!, message);   
 
     messageController.clear();
   }
