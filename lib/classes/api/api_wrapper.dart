@@ -139,4 +139,25 @@ class ApiWrapper {
       'selectedLanguage': selectedLanguage
     });
   }
+
+  static void signOut() async {
+    String refreshToken = (await apiPreferences).getString('refreshToken') ?? '';
+    
+    Response response = await http.delete(
+      Uri.parse('${dotenv.get('API_BASE_URL')}/auth/signout'),
+      headers: {
+        "Authorization": "Bearer $refreshToken" 
+      },
+    );
+
+    apiPreferences.then((prefs) {
+      prefs.remove('accessToken');
+      prefs.remove('refreshToken');
+    });
+
+
+    if (!isOk(response.statusCode)) {
+      throw Exception(jsonDecode(response.body)['error']);
+    }
+  }
 }

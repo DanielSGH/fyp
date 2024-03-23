@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -12,10 +14,12 @@ class User {
   final List<Map<String, dynamic>>? messages;
   final List<ContactModel>? contacts, newPartners;
   final List<String>? selectedLanguages;
+  final Image profilePicture;
   
   User({
     required this.id,
     required this.username,
+    required this.profilePicture,
     this.flashcards,
     this.messages,
     this.contacts,
@@ -41,6 +45,7 @@ class User {
     selectedLanguages: (json['selectedLanguages'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toList(),
+    profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
   );
 
   Map<String, dynamic> toJson() => <String, dynamic>{

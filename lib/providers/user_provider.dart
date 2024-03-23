@@ -1,10 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/classes/users/user_model.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 class UserNotifier extends StateNotifier<User> {
-  UserNotifier() : super(User(username: '', id: ObjectId()));
+  UserNotifier() : super(User(username: '', id: ObjectId(), profilePicture: Image.network(dotenv.get('DEFAULT_PROFILE_PICTURE'))));
 
   void setUser(User user) {
     state = user;

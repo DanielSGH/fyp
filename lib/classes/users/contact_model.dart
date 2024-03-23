@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 enum OnlineStatus { online, offline }
@@ -13,28 +14,34 @@ OnlineStatus convertByName(String status) {
 
 class ContactModel {
   ObjectId id;
-  Image? profilePicture;
+  Image profilePicture;
   String username;
   String? lastMessage;
   DateTime? lastSeenTime;
   OnlineStatus? onlineStatus;
+  List<String>? selectedLanguages;
+
 
   ContactModel({
     required this.id,
-    this.profilePicture,
+    required this.profilePicture,
     required this.username,
     this.lastSeenTime,
     this.onlineStatus = OnlineStatus.offline,
     this.lastMessage = '',
+    this.selectedLanguages = const <String>[],
   });
 
   factory ContactModel.fromJson(Map<String, dynamic> json) => ContactModel(
     id: ObjectId.parse(json['_id']),
-    profilePicture: json['profilePicture'],
+    profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
     username: json['username'] as String,
     lastSeenTime: json['lastSeenTime'],
     onlineStatus: convertByName(json['onlineStatus'] ?? ''),
-    lastMessage: json['lastMessage'], 
+    lastMessage: json['lastMessage'],
+    selectedLanguages: (json['selectedLanguages'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -44,5 +51,6 @@ class ContactModel {
     'lastSeenTime': lastSeenTime,
     'onlineStatus': onlineStatus,
     'lastMessage': lastMessage,
+    'selectedLanguages': selectedLanguages,
   };
 }

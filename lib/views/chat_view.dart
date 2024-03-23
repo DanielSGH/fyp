@@ -137,7 +137,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: widget.contact.profilePicture?.image ?? Image.network('https://thispersondoesnotexist.com/').image,
+              backgroundImage: widget.contact.profilePicture.image,
             ),
             const SizedBox(width: 8.0),
             Text(widget.contact.username),

@@ -1,9 +1,12 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fyp/classes/language_codes.dart';
 import 'package:fyp/classes/users/contact_model.dart';
 import 'package:fyp/providers/socketio_provider.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:fyp/views/chat_view.dart';
+import 'package:fyp/views/settings_view.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
 class ContactsView extends ConsumerStatefulWidget {
@@ -23,6 +26,16 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
     super.initState();
     connect();
     contacts = ref.read(userProvider).contacts ?? [];
+
+    for (var contact in contacts) {
+      ref.read(userProvider).messages?.forEach((element) { 
+        element['participants'].forEach((participant) {
+          if (participant['_id'] == contact.id.oid) {
+            contact.lastMessage = element['messages'].last['message'];
+          }
+        });
+      });
+    }
   }
 
   void connect() { 
@@ -71,9 +84,43 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
   Widget build(BuildContext context) {
     var newPartners = ref.watch(userProvider).newPartners;
     List<ContactModel> combinedContacts = [...contacts, ...newPartners ?? []];
-    // inspect(contacts);
 
     return Scaffold(
+      appBar: AppBar(
+        title: Row(children: [
+          const Text('Contacts'),
+          const Spacer(),
+          Stack(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingsView(pfp: ref.read(userProvider).profilePicture, socket: socket),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: ref.read(userProvider).profilePicture.image,
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _getOnlineStatusColor(OnlineStatus.online),
+                  ),
+                  child: _getIconForOnlineStatus(OnlineStatus.online),
+                ),
+              ),
+            ],
+          ),
+        ]),
+      ),
       body: ListView.builder(
         itemCount: combinedContacts.length,
         itemBuilder: (context, index) {
@@ -81,11 +128,14 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Friends',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'Friends',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 contactTile(index, context, contacts),
@@ -97,11 +147,14 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'New Partners',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'New Partners',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 contactTile(index, context, combinedContacts),
@@ -115,41 +168,70 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
     );
   }
 
-  ListTile contactTile(int index, BuildContext context, List<ContactModel> whichContacts) {
-    return ListTile(
-      onTap: () async {
-        activeChat = ChatView(contact: whichContacts[index], socket: socket);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
-      },
-      tileColor: Colors.black12,
-      leading: Stack(
-        children: [
-          CircleAvatar(
-            backgroundImage: whichContacts[index].profilePicture?.image ?? const NetworkImage('https://thispersondoesnotexist.com/')
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _getOnlineStatusColor(whichContacts[index].onlineStatus ?? OnlineStatus.offline),
+  Card contactTile(int index, BuildContext context, List<ContactModel> whichContacts) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        onTap: () async {
+          activeChat = ChatView(contact: whichContacts[index], socket: socket);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
+        },
+        tileColor: Colors.black12,
+        leading: getPFPWithStatus(whichContacts[index]),
+        subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    whichContacts[index].username,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  _getLastSeenTimeText(whichContacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
+                  if (whichContacts[index].lastMessage != null && whichContacts[index].lastMessage!.isNotEmpty)
+                    Text(whichContacts[index].lastMessage ?? '', overflow: TextOverflow.ellipsis),
+                ],
               ),
-              child: _getIconForOnlineStatus(whichContacts[index].onlineStatus ?? OnlineStatus.offline),
             ),
+            CountryFlag.fromCountryCode(
+              LanguageCodes().getCode(whichContacts[index].selectedLanguages?.first ?? 'en')!, 
+              height: 36, 
+              width: 48,
+              borderRadius: 8,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Stack getPFPWithStatus(ContactModel contact) {
+    return Stack(
+      children: [
+        CircleAvatar(
+          backgroundImage: contact.profilePicture.image,
+          radius: 25,
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _getOnlineStatusColor(contact.onlineStatus ?? OnlineStatus.offline),
+            ),
+            child: _getIconForOnlineStatus(contact.onlineStatus ?? OnlineStatus.offline),
           ),
-        ],
-      ),
-      title: Text(whichContacts[index].username),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _getLastSeenTimeText(whichContacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
-          if (whichContacts[index].lastMessage != null && whichContacts[index].lastMessage!.isNotEmpty)
-            Text(whichContacts[index].lastMessage ?? ''),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
