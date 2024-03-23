@@ -25,9 +25,22 @@ class _AuthViewState extends ConsumerState<AuthView> {
     checkNeedsSignup();
   }
 
+  void showError(e) {
+    showDialog(
+        context: context, 
+        builder: (context) => AlertDialog(
+          actions: [
+            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
+          ],
+          title: const Text('Error'),
+          content: Text(e.toString()),
+        )
+      );
+  }
+
   void checkNeedsSignup() async {
     var prefs = await ApiWrapper.apiPreferences;
-    // prefs.clear();
+    prefs.clear();
 
     if (!prefs.containsKey('refreshToken')) {
       setState(() {
@@ -44,7 +57,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
       
       gotoHomePage();
     } catch (e) {
-      rethrow;
+      showError(e);
     }
   }
 
@@ -59,18 +72,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
       ref.read(userProvider.notifier).setUser(user);
       gotoHomePage();
     } catch (e) {
-      showDialog(
-        context: context, 
-        builder: (context) => AlertDialog(
-          actions: [
-            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
-          ],
-          title: const Text('Error'),
-          content: Text(e.toString()),
-        )
-      );
-
-      rethrow;
+      showError(e);
     }
   }
 
