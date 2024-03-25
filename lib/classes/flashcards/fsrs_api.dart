@@ -25,7 +25,7 @@ class FSRS {
       cardCopy.elapsedDays = 0;
     }
     else {
-      cardCopy.elapsedDays = now.difference(cardCopy.lastReview).inDays;
+      cardCopy.elapsedDays = now.difference(cardCopy.lastReview ?? DateTime.now()).inDays;
     }
 
     cardCopy.lastReview = now;

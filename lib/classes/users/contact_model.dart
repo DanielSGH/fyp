@@ -32,17 +32,19 @@ class ContactModel {
     this.selectedLanguages = const <String>[],
   });
 
-  factory ContactModel.fromJson(Map<String, dynamic> json) => ContactModel(
-    id: ObjectId.parse(json['_id']),
-    profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
-    username: json['username'] as String,
-    lastSeenTime: json['lastSeenTime'],
-    onlineStatus: convertByName(json['onlineStatus'] ?? ''),
-    lastMessage: json['lastMessage'],
-    selectedLanguages: (json['selectedLanguages'] as List<dynamic>)
-      .map((e) => e as String)
-      .toList(),
-  );
+  factory ContactModel.fromJson(Map<String, dynamic> json) { 
+    return ContactModel(
+      id: ObjectId.parse(json['_id']),
+      profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
+      username: json['username'] as String,
+      lastSeenTime: json['lastSeenTime'] == "" ? null : DateTime.parse(json['lastSeenTime']),
+      onlineStatus: convertByName(json['onlineStatus'] ?? ''),
+      lastMessage: json['lastMessage'],
+      selectedLanguages: (json['selectedLanguages'] as List<dynamic>)
+        .map((e) => e as String)
+        .toList(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     '_id': id,

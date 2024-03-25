@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/users/user_model.dart';
@@ -140,21 +141,24 @@ class ApiWrapper {
     });
   }
 
-  static void signOut() async {
-    String refreshToken = (await apiPreferences).getString('refreshToken') ?? '';
-    
-    Response response = await http.delete(
-      Uri.parse('${dotenv.get('API_BASE_URL')}/auth/signout'),
+  static Future<Response> sendDeleteReq(String endpoint, String token) async {
+    return await http.delete(
+      Uri.parse('${dotenv.get('API_BASE_URL')}$endpoint'),
       headers: {
-        "Authorization": "Bearer $refreshToken" 
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
       },
     );
+  }
+
+  static void delete(String type) async {
+    String endpoint = type == 'signout' ? '/auth/signout' : '/user/deleteAccount';
+    String token = type == 'signout' ? 'refreshToken' : 'accessToken';
+    var response = await sendDeleteReq(endpoint, (await apiPreferences).getString(token) ?? '');
 
     apiPreferences.then((prefs) {
       prefs.remove('accessToken');
-      prefs.remove('refreshToken');
     });
-
 
     if (!isOk(response.statusCode)) {
       throw Exception(jsonDecode(response.body)['error']);

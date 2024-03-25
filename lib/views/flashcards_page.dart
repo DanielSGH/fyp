@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
@@ -5,6 +7,7 @@ import 'package:fyp/classes/flashcards/enums/card_rating.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/flashcards/fsrs_api.dart';
 import 'package:fyp/providers/user_provider.dart';
+import 'package:fyp/views/card_stats_view.dart';
 
 import 'package:fyp/widgets/flashcard_widget.dart';
 
@@ -18,17 +21,17 @@ class FlashcardsPage extends ConsumerStatefulWidget {
 }
 
 class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
-  List<FlashCard> dueCards = [];
+  List<FlashCard> dueCards = [], reviewedCards = [];
   FlashCard currentCard = FlashCard();
   FSRS fsrs = FSRS();
 
   Future<void> loadFlashcards() async {
-    dueCards = ref.read(userProvider).flashcards ?? <FlashCard>[
+    dueCards = List.of(ref.read(userProvider).flashcards ?? <FlashCard>[
       FlashCard()
-    ];
+    ]);
 
     dueCards.retainWhere((card) {
-      return card.due.isBefore(DateTime.now());
+      return card.due == null || card.due!.isBefore(DateTime.now());
     });
 
     setState(() {
@@ -47,17 +50,43 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ref.watch(userProvider).username),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Flashcards'),
+            // IconButton(
+            //   icon: const Icon(Icons.refresh),
+            //   onPressed: () {
+            //     setState(() {
+            //       int idx = dueCards.indexOf(currentCard);
+            //       if (idx < 1) {
+            //         return;
+            //       }
+
+            //       currentCard = reviewedCards.removeLast();
+            //     });
+            //   },
+            // ),
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CardStatsView()));
+              },
+            ),
+          ],
+        ),
         backgroundColor: Colors.blueGrey[900],
       ),
       body: FlashcardWidget(
         flashCard: currentCard,
         changeCard: (CardRating rating) {
           int idx = dueCards.indexOf(currentCard);
-          FlashCard oldCard = dueCards[idx];
+          FlashCard oldCard = FlashCard.copy(obj: dueCards[idx]);
           setState(() {
-            dueCards[idx] = fsrs.repeat(currentCard, DateTime.now())[rating]?.card as FlashCard;
+            reviewedCards.add(oldCard);
+            dueCards[idx] = fsrs.repeat(currentCard, DateTime.now())[rating]!.card;
             currentCard = dueCards.elementAt(idx + 1);
+            ref.read(userProvider.notifier).updateFlashCard(dueCards[idx]);
           });
 
           ApiWrapper.updateFlashcard(oldCard, dueCards[idx], ref.read(userProvider).selectedLanguages![0]);

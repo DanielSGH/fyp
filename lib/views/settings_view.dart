@@ -39,21 +39,27 @@ class SettingsView extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
             onTap: () {
-              ApiWrapper.signOut();
-              socket.disconnect();
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthView()));
+              ApiWrapper.delete('signout');
+              sendToAuthView(context);
             },
           ),
           // Delete account
           ListTile(
-            leading: Icon(Icons.delete),
-            title: Text('Delete Account'),
+            leading: const Icon(Icons.delete),
+            title: const Text('Delete Account'),
             onTap: () {
-              // TODO: Implement delete account functionality
+              ApiWrapper.delete('deleteAccount');
+              sendToAuthView(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void sendToAuthView(BuildContext context) {
+    socket.disconnect();
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthView()));
   }
 }

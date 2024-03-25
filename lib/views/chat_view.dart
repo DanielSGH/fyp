@@ -76,7 +76,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
     }
 
     try {
-      rooms[0]['messages'].forEach((message) {
+      rooms[0]['messages']?.forEach((message) {
         final msg = message['message'];
         setState(() {
           messages.add(msg);

@@ -9,7 +9,7 @@ class FlashCard {
   String word;
   String english;
   String example;
-  DateTime due;
+  DateTime? due;
   double stability;
   double difficulty;
   int elapsedDays;
@@ -17,14 +17,14 @@ class FlashCard {
   int reps;
   int lapses;
   CardState state;
-  late DateTime lastReview;
+  DateTime? lastReview;
 
   FlashCard._({
     required this.id,
     required this.word,
     required this.english,
     required this.example,
-    required this.due, 
+    this.due, 
     required this.stability, 
     required this.difficulty, 
     required this.elapsedDays, 
@@ -32,7 +32,7 @@ class FlashCard {
     required this.reps, 
     required this.lapses, 
     required this.state, 
-    required this.lastReview
+    this.lastReview
   });
 
   FlashCard() :

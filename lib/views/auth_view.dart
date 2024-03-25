@@ -1,6 +1,10 @@
+import 'dart:developer';
+
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/api/api_wrapper.dart';
+import 'package:fyp/classes/language_codes.dart';
 import 'package:fyp/classes/users/user_model.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:fyp/views/home_view.dart';
@@ -17,25 +21,29 @@ class _AuthViewState extends ConsumerState<AuthView> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  late String selectedLanguage;
   bool isSigningUp = false;
 
   @override
   void initState() {
     super.initState();
     checkNeedsSignup();
+    selectedLanguage = 'russian';
   }
 
   void showError(e) {
     showDialog(
-        context: context, 
-        builder: (context) => AlertDialog(
-          actions: [
-            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
-          ],
-          title: const Text('Error'),
-          content: Text(e.toString()),
-        )
-      );
+      context: context, 
+      builder: (context) => AlertDialog(
+        actions: [
+          ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
+        ],
+        title: const Text('Error'),
+        content: Text(e.toString()),
+      )
+    );
+
+    throw e;
   }
 
   void checkNeedsSignup() async {
@@ -51,7 +59,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
     try {
       await ApiWrapper.refreshAccessToken();
-
       User user = await ApiWrapper.getUserInfo();
       ref.read(userProvider.notifier).setUser(user);
       
@@ -72,8 +79,40 @@ class _AuthViewState extends ConsumerState<AuthView> {
       ref.read(userProvider.notifier).setUser(user);
       gotoHomePage();
     } catch (e) {
+      inspect(e);
       showError(e);
     }
+  }
+
+  List<Widget> returnFlags(String countryName) {
+    return <Widget>[
+      GestureDetector(
+        onTap: () {
+          if (countryName != 'ru') {
+            return;
+          }
+
+          setState(() {
+            selectedLanguage = LanguageCodes.getFullName(countryName);
+            print(selectedLanguage);
+          });
+        },
+        child: Container(
+          foregroundDecoration: countryName != 'ru' ? BoxDecoration(
+            color: Colors.grey,
+            backgroundBlendMode: BlendMode.saturation,
+            borderRadius: BorderRadius.circular(10),
+          ) : null,
+          child: CountryFlag.fromCountryCode(
+            countryName,
+            height: 48,
+            width: 64,
+            borderRadius: 10,
+          ),
+        ),
+      ),
+      const SizedBox(width: 10)
+    ];
   }
 
   @override
@@ -100,14 +139,24 @@ class _AuthViewState extends ConsumerState<AuthView> {
               AuthFormTextField(controller: _passwordController, hintText: '🔑 Password', obscureText: true),
               const SizedBox(height: 10),
               if (isSigningUp) AuthFormTextField(controller: _emailController, hintText: '📧 Email'),
-              const Text('Forgot password?'),
+              const SizedBox(height: 10),
+              if (isSigningUp)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var value in LanguageCodes.namesToCodes.values) 
+                        ...returnFlags(value)
+                    ]
+                  ),
+                ),
               const SizedBox(height: 30),
               AuthButton(isSigningUp: isSigningUp, onPressed: () async => _handleAuth(
                 {
                   "username": _usernameController.text, 
                   if (isSigningUp) "email": _emailController.text, 
                   "password": _passwordController.text,
-                  "selectedLanguage": "russian"
+                  "selectedLanguage": selectedLanguage,
                 }, 
                 context
               )),

@@ -5,7 +5,7 @@ import 'package:fyp/classes/api/api_wrapper.dart';
 import 'package:http/http.dart';
 
 class SentencesView extends StatefulWidget {
-  const SentencesView({super.key});
+  const SentencesView({Key? key}) : super(key: key);
 
   @override
   State<SentencesView> createState() => _SentencesViewState();
@@ -19,20 +19,25 @@ class _SentencesViewState extends State<SentencesView> {
   @override
   void initState() {
     super.initState();
+    if (!mounted) {
+      return;
+    }
     getSentences();
     setState(() {
       proposedSentence = const Wrap(children: []);
     });
   }
 
-  void getSentences() async {
-    Response response = await ApiWrapper.sendGetReq(
+  void getSentences() {
+    ApiWrapper.sendGetReq(
       '/sentences?selectedLanguage=russian'
-    );
+    ).then((response) {
+      if (!mounted) return;
 
-    setState(() {
-      sentences = jsonDecode(response.body);
-    });
+      setState(() {
+        sentences = jsonDecode(response.body);
+      });
+   });
   }
 
   @override

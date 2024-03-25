@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
@@ -27,26 +29,28 @@ class User {
     this.selectedLanguages,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-    id: User._idFromJson(json['_id'] as String),
-    username: json['username'] as String,
-    flashcards: (json['flashcards'] as List<dynamic>?)
-        ?.map((e) => FlashCard.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    messages: (json['messages'] as List<dynamic>?)
-        ?.map((e) => e as Map<String, dynamic>)
-        .toList(),
-    contacts: (json['contacts'] as List<dynamic>?)
-        ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    newPartners: (json['newPartners'] as List<dynamic>?)
-        ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    selectedLanguages: (json['selectedLanguages'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList(),
-    profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
-  );
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: User._idFromJson(json['_id'] as String),
+      username: json['username'] as String,
+      flashcards: (json['flashcards'] as List<dynamic>?)
+          ?.map((e) => FlashCard.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      messages: (json['messages'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      contacts: (json['contacts'] as List<dynamic>?)
+          ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      newPartners: (json['newPartners'] as List<dynamic>?)
+          ?.map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      selectedLanguages: (json['selectedLanguages'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      profilePicture: Image.network(json['profilePicture'] ?? dotenv.get('DEFAULT_PROFILE_PICTURE')),
+    );
+  }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
       'id': User._idToJson(id),

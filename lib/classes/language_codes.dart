@@ -1,7 +1,7 @@
 class LanguageCodes {
-  final Map<String, String> namesToCodes = {
+  static final Map<String, String> namesToCodes = {
     'russian': 'ru',
-    'english': 'en',
+    'english': 'gb',
     'spanish': 'es',
     'french': 'fr',
     'german': 'de',
@@ -9,7 +9,11 @@ class LanguageCodes {
     'japanese': 'jp',
   };
 
-  String? getCode(String name) {
+  static String? getCode(String name) {
     return namesToCodes[name];
+  }
+
+  static String getFullName(String code) {
+    return namesToCodes.keys.firstWhere((key) => namesToCodes[key] == code);
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,22 +27,34 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
   void initState() {
     super.initState();
     connect();
-    contacts = ref.read(userProvider).contacts ?? [];
-
-    for (var contact in contacts) {
-      ref.read(userProvider).messages?.forEach((element) { 
-        element['participants'].forEach((participant) {
-          if (participant['_id'] == contact.id.oid) {
-            contact.lastMessage = element['messages'].last['message'];
-          }
-        });
-      });
-    }
+    setContacts();
   }
 
   void connect() { 
     socket = ref.read(socketIOProvider);
-    ref.read(socketIOProvider.notifier).initSetup(ref);
+    ref.read(socketIOProvider.notifier).initSetup(ref.read(userProvider).messages);
+  }
+
+  void setContacts() {
+    setState(() {
+      contacts = ref.read(userProvider).contacts ?? [];
+      List<Map<String, dynamic>> userMessages = ref.read(userProvider).messages ?? [];
+
+      if (contacts.isEmpty || userMessages.isEmpty) return;
+
+      for (var contact in contacts) {
+        for (var msg in userMessages) {
+          if (msg['participants'] == null) continue;
+          for (var participant in msg['participants']) {
+            if (participant['_id'] == contact.id.oid) {
+              if (msg['messages'] != null && msg['messages'].isNotEmpty) {
+                contact.lastMessage = msg['messages']?.last['message'] ?? '';
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   Color _getOnlineStatusColor(OnlineStatus status) {
@@ -176,7 +190,10 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
       child: ListTile(
         onTap: () async {
           activeChat = ChatView(contact: whichContacts[index], socket: socket);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
+          var res = await Navigator.push(context, MaterialPageRoute(builder: (context) => activeChat));
+          if (res == null) {
+            setContacts();
+          }
         },
         tileColor: Colors.black12,
         leading: getPFPWithStatus(whichContacts[index]),
@@ -194,14 +211,15 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _getLastSeenTimeText(whichContacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
+                  if (whichContacts[index].onlineStatus == OnlineStatus.offline)
+                    _getLastSeenTimeText(whichContacts[index].lastSeenTime ?? DateTime.now().subtract(const Duration(days: 2))),
                   if (whichContacts[index].lastMessage != null && whichContacts[index].lastMessage!.isNotEmpty)
                     Text(whichContacts[index].lastMessage ?? '', overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
             CountryFlag.fromCountryCode(
-              LanguageCodes().getCode(whichContacts[index].selectedLanguages?.first ?? 'en')!, 
+              LanguageCodes.getCode(whichContacts[index].selectedLanguages?.first ?? 'en')!, 
               height: 36, 
               width: 48,
               borderRadius: 8,

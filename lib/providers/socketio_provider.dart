@@ -14,12 +14,16 @@ class SocketIONotifier extends StateNotifier<Socket> {
     .setTransports(['websocket'])
     .build()));
 
-  void initSetup(WidgetRef ref) {
+  void initSetup(List<Map<String, dynamic>>? messages) {
     state.onConnect((_) async {
-      var messages = ref.read(userProvider).messages;
       var prefs = await ApiWrapper.apiPreferences;
       var tok = prefs.getString('refreshToken');
+      // print(messages);
       String userID = JWT.decode(tok!).payload['_id'];
+
+      if (messages?.isEmpty ?? true) {
+        state.emit('join', { "userID": userID, "room": userID});
+      }
 
       messages?.forEach((room) => state.emit('join', { "userID": userID, "room": room['_id']}));
       state.on('message', (data) {
@@ -27,9 +31,14 @@ class SocketIONotifier extends StateNotifier<Socket> {
         chatViewKey.currentState?.receiveMessage(data);
       });
     });
+
     state.onConnectError((error) {
       log('connection error: $error');
     });
+
+    if (!state.connected) {
+      state.connect();
+    }
   }
 }
 
