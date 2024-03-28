@@ -5,14 +5,14 @@ import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/providers/user_provider.dart';
 
-class CardStatsView extends ConsumerStatefulWidget {
-  const CardStatsView({super.key});
+class AllCardStatsView extends ConsumerStatefulWidget {
+  const AllCardStatsView({super.key});
 
   @override
-  ConsumerState<CardStatsView> createState() => _CardStatsViewState();
+  ConsumerState<AllCardStatsView> createState() => _CardStatsViewState();
 }
 
-class _CardStatsViewState extends ConsumerState<CardStatsView> {
+class _CardStatsViewState extends ConsumerState<AllCardStatsView> {
   late List<FlashCard> cards;
 
   @override

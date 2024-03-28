@@ -17,14 +17,17 @@ class AuthFormTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey),
         enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white)
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.all(Radius.circular(15)),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey)
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         fillColor: Colors.white,
         filled: true,

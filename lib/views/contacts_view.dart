@@ -195,7 +195,6 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
             setContacts();
           }
         },
-        tileColor: Colors.black12,
         leading: getPFPWithStatus(whichContacts[index]),
         subtitle: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -134,11 +134,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
             children: <Widget>[
               Center(child: Text(isSigningUp ? 'Sign Up' : 'Sign In', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
               const SizedBox(height: 10),
-              AuthFormTextField(controller: _usernameController, hintText: '🧑 Username'),
-              const SizedBox(height: 10),
-              AuthFormTextField(controller: _passwordController, hintText: '🔑 Password', obscureText: true),
+              AuthFormTextField(controller: _usernameController, hintText: '🧑 Username', ),
               const SizedBox(height: 10),
               if (isSigningUp) AuthFormTextField(controller: _emailController, hintText: '📧 Email'),
+              const SizedBox(height: 10),
+              AuthFormTextField(controller: _passwordController, hintText: '🔑 Password', obscureText: true),
               const SizedBox(height: 10),
               if (isSigningUp)
                 SingleChildScrollView(

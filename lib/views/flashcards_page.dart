@@ -7,7 +7,8 @@ import 'package:fyp/classes/flashcards/enums/card_rating.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/classes/flashcards/fsrs_api.dart';
 import 'package:fyp/providers/user_provider.dart';
-import 'package:fyp/views/card_stats_view.dart';
+import 'package:fyp/views/all_card_stats_view.dart';
+import 'package:fyp/views/basic_card_stats_view.dart';
 
 import 'package:fyp/widgets/flashcard_widget.dart';
 
@@ -70,12 +71,11 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
             IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CardStatsView()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => BasicCardStatsView()));
               },
             ),
           ],
         ),
-        backgroundColor: Colors.blueGrey[900],
       ),
       body: FlashcardWidget(
         flashCard: currentCard,
