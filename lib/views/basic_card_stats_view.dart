@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/flashcards/enums/card_state.dart';
+import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/providers/user_provider.dart';
 import 'package:pie_chart/pie_chart.dart';
 
@@ -38,8 +39,15 @@ class BasicCardStatsViewState extends ConsumerState<BasicCardStatsView> {
     var flashcards = ref.watch(userProvider).flashcards ?? [];
     int totalCards = flashcards.length;
     int completedCards = flashcards.where((card) => card.reps > 0).length;
-    double averageDifficulty = flashcards.isNotEmpty
-      ? flashcards.map((card) => card.difficulty).reduce((a, b) => a + b) / flashcards.length
+    // double averageDifficulty = flashcards.isNotEmpty
+    //   ? flashcards.map((card) => card.difficulty).reduce((a, b) => a + b) / flashcards.length
+    //   : 0.0;
+    // average difficulty is calculated based on what cards are not in the new state
+
+    List<FlashCard> seenCards = flashcards.where((card) => card.state != CardState.New).toList();
+
+    double averageDifficulty = seenCards.isNotEmpty
+      ? seenCards.map((card) => card.difficulty).reduce((a, b) => a + b) / seenCards.length
       : 0.0;
     int cardsDueNow = flashcards.where((card) => card.due == null || (card.due != null && card.due!.isBefore(DateTime.now()))).length;
 

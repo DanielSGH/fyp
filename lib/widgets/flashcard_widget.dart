@@ -17,6 +17,16 @@ class FlashcardWidget extends StatefulWidget {
 }
 
 class _FlashcardWidgetState extends State<FlashcardWidget> {
+  bool showEnglish = false;
+
+  void changeCardHandler(CardRating rating) {
+    setState(() {
+      showEnglish = false;
+    });
+
+    widget.changeCard(rating);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +61,23 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
             Container(
               padding: const EdgeInsets.all(20),
               margin: const EdgeInsets.all(20),
-              child: Center(child: Text(widget.flashCard?.english ?? "Loading...", style: const TextStyle(fontSize: 20, color: Colors.black), textAlign: TextAlign.center)),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showEnglish = !showEnglish;
+                  });
+                },
+                child: Center(
+                  child: Text(
+                    showEnglish ? widget.flashCard?.english ?? "Loading..." : "Tap to show translation",
+                    style: const TextStyle(
+                      fontSize: 20, 
+                      color: Colors.black
+                    ), 
+                    textAlign: TextAlign.center
+                  )
+                ),
+              ),
             ),
             
             Container(
@@ -82,7 +108,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                       child: FittedBox(
                         child: MaterialButton(
                           // padding: const EdgeInsets.all(27),
-                          onPressed: () => widget.changeCard(CardRating.Easy),
+                          onPressed: () => changeCardHandler(CardRating.Easy),
                           child: const Text("Perfect"),
                         ),
                       ),
@@ -95,7 +121,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                       child: FittedBox(
                         child: MaterialButton(
                           // padding: const EdgeInsets.all(27),
-                          onPressed: () => widget.changeCard(CardRating.Okay),
+                          onPressed: () => changeCardHandler(CardRating.Okay),
                           child: const Text("Okay"),
                         ),
                       ),
@@ -114,7 +140,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                       child: FittedBox(
                         child: MaterialButton(
                           // padding: const EdgeInsets.all(27),
-                          onPressed: () => widget.changeCard(CardRating.Poor),
+                          onPressed: () => changeCardHandler(CardRating.Poor),
                           child: const Text("Poor"),
                         ),
                       ),
