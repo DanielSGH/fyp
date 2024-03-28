@@ -36,13 +36,12 @@ class BasicCardStatsViewState extends ConsumerState<BasicCardStatsView> {
   @override
   Widget build(BuildContext context) {
     var flashcards = ref.watch(userProvider).flashcards ?? [];
-    
     int totalCards = flashcards.length;
     int completedCards = flashcards.where((card) => card.reps > 0).length;
     double averageDifficulty = flashcards.isNotEmpty
       ? flashcards.map((card) => card.difficulty).reduce((a, b) => a + b) / flashcards.length
       : 0.0;
-    int cardsDueNow = flashcards.where((card) => card.due != null && card.due!.isBefore(DateTime.now())).length;
+    int cardsDueNow = flashcards.where((card) => card.due == null || (card.due != null && card.due!.isBefore(DateTime.now()))).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -56,15 +55,12 @@ class BasicCardStatsViewState extends ConsumerState<BasicCardStatsView> {
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Card(
                   child: ListTile(
-                    title: Container(margin: const EdgeInsets.only(bottom: 20), child: const Text('Progression')),
+                    title: Container(margin: const EdgeInsets.only(bottom: 20), child: const Text('Card States')),
                     subtitle: FittedBox(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: PieChart(
                           dataMap: {
-                            'Reviewed': completedCards.toDouble(),
-                            'Remaining': (totalCards - completedCards).toDouble(),
-                            'Due now': cardsDueNow.toDouble(),
                             for (var states in CardState.values)
                               states.toString().split('.').last: flashcards.where((card) => card.state == states).length.toDouble(),
                           },

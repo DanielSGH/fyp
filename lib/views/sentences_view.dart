@@ -40,6 +40,12 @@ class _SentencesViewState extends State<SentencesView> {
    });
   }
 
+  void resetButtonHandler() {
+    setState(() {
+      proposedSentence = const Wrap(children: []);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (sentences.isEmpty) {
@@ -99,49 +105,106 @@ class _SentencesViewState extends State<SentencesView> {
                     )
                 ]),
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  final proposedString = proposedSentence.children.map((element) => ((element as ElevatedButton).child as Text).data).join(' ');
-                  if (proposedString == sentences[_index]['target']) {
-                    setState(() {
-                      proposedSentence = const Wrap(children: []);
-                      _index = (_index + 1) % (sentences.length - 1);
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Correct!'),
-                        duration: Duration(milliseconds: 500),
-                      )
-                    );
-        
-                    return;
-                  }
-        
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Incorrect! Try again.'),
-                      duration: Duration(milliseconds: 500),
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(0),
+                margin: const EdgeInsets.fromLTRB(20, 0, 20, 50),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  color: Colors.white,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 4.0,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromARGB(150, 0, 0, 0),
+                      blurRadius: 20.0,
+                      offset: Offset(0, 10.0),
                     )
-                  );
-                },
-                child: const Text('Submit')
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    proposedSentence = const Wrap(children: []);
-                  });
-                },
-                child: const Text('Reset')
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _index = (_index + 1) % (sentences.length - 1);
-                  });
-                },
-                child: const Text('Skip'),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Colors.lightGreen,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                        ),
+                        child: MaterialButton(
+                          onPressed: () {
+                            final proposedString = proposedSentence.children.map((element) => ((element as ElevatedButton).child as Text).data).join(' ');
+                            if (proposedString == sentences[_index]['target']) {
+                              setState(() {
+                                proposedSentence = const Wrap(children: []);
+                                _index = (_index + 1) % (sentences.length - 1);
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Correct!'),
+                                  duration: Duration(milliseconds: 500),
+                                )
+                              );
+                                
+                              return;
+                            }
+                                
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Incorrect! Try again.'),
+                                duration: Duration(milliseconds: 500),
+                              )
+                            );
+                          },
+                          child: const Icon(Icons.check, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.only(
+                          ),
+                        ),
+                        child: MaterialButton(
+                          onPressed: resetButtonHandler,
+                          child: const Icon(Icons.close, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            bottomRight: Radius.circular(15),
+                          ),
+                        ),
+                        child: MaterialButton(
+                          onPressed: () {
+                            resetButtonHandler();
+                            setState(() {
+                              _index = (_index + 1) % (sentences.length - 1);
+                            });
+                          },
+                          child: const Icon(Icons.keyboard_double_arrow_right, color: Colors.white)
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 200),
             ]
