@@ -71,7 +71,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
   }
 
   void getMessages() {
-    var rooms = ref.read(userProvider.notifier).getMessages(widget.contact.id.oid)!;
+    var rooms = ref.read(userProvider.notifier).getMessages(widget.contact.id.oid) ?? <Map<String, dynamic>>[];
 
     if (!rooms.isNotEmpty) {
       return;
@@ -95,7 +95,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
 
     setState(() {
       messages.add({
-        "from": ref.read(userProvider).id.oid,
+        "from": widget.contact.id.oid,
         "message": data['msg'],
         "at": DateTime.now().toIso8601String(),
       });
