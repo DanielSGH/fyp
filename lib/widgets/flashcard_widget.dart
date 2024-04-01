@@ -68,13 +68,18 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                   });
                 },
                 child: Center(
-                  child: Text(
-                    showEnglish ? widget.flashCard?.english ?? "Loading..." : "Tap to show translation",
-                    style: const TextStyle(
-                      fontSize: 20, 
-                      color: Colors.black
-                    ), 
-                    textAlign: TextAlign.center
+                  child: Column(
+                    children: [
+                      Text(
+                        showEnglish ? widget.flashCard?.english ?? "Loading..." : "Tap to show translation",
+                        style: const TextStyle(
+                          fontSize: 20, 
+                          color: Colors.black
+                        ), 
+                        textAlign: TextAlign.center
+                      ),
+                      Icon(!showEnglish ? Icons.touch_app : Icons.touch_app_outlined, size: 30, color: Colors.black),
+                    ],
                   )
                 ),
               ),

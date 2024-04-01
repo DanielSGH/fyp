@@ -18,10 +18,13 @@ class ContactsView extends ConsumerStatefulWidget {
   ConsumerState<ContactsView> createState() => _ContactsViewState();
 }
 
-class _ContactsViewState extends ConsumerState<ContactsView> {
+class _ContactsViewState extends ConsumerState<ContactsView> with AutomaticKeepAliveClientMixin<ContactsView> {
   late Socket socket;
   List<ContactModel> contacts = [];
   late ChatView activeChat;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -54,8 +57,13 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
       return;
     }
 
-    user.contacts?.firstWhere((element) => element.id.oid == userID).onlineStatus = status;
-    setState(() {
+    var contact = user.contacts?.firstWhere((element) => element.id.oid == userID);
+    contact?.onlineStatus = status;
+    if (status == OnlineStatus.offline) {
+      contact?.lastSeenTime = DateTime.now();
+    }
+    
+    setState(() {      
       contacts = user.contacts ?? [];
     });
   }
@@ -124,6 +132,7 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
     var newPartners = ref.watch(userProvider).newPartners;
     List<ContactModel> combinedContacts = [...contacts, ...newPartners ?? []];
 
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(children: [

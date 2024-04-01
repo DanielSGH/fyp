@@ -34,6 +34,7 @@ class SettingsView extends StatelessWidget {
               ),
             ),
           ),
+          const Spacer(),
           // Sign out
           ListTile(
             leading: const Icon(Icons.logout),
@@ -52,13 +53,14 @@ class SettingsView extends StatelessWidget {
               sendToAuthView(context);
             },
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
   void sendToAuthView(BuildContext context) {
-    socket.disconnect();
+    socket.dispose();
     Navigator.popUntil(context, ModalRoute.withName('/'));
     Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthView()));
   }
