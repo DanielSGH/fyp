@@ -32,7 +32,7 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
 
   @override
   void dispose() {
-    socket.dispose();
+    // socket.dispose();
     super.dispose();
   }
 
@@ -40,17 +40,23 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
     socket = ref.read(socketIOProvider);
     ref.read(socketIOProvider.notifier).initSetup(ref.read(userProvider).messages);
     socket.on('joined', (userID) {
-      print('setting online status for $userID');
-      var user = ref.read(userProvider);
-      if (userID == user.id.oid) {
-        return;
-      }
+      handleUserEvent(userID, OnlineStatus.online);
+    });
 
+    socket.on('exited', (userID) {
+      handleUserEvent(userID, OnlineStatus.offline);
+    });
+  }
 
-      user.contacts?.firstWhere((element) => element.id.oid == userID).onlineStatus = OnlineStatus.online;
-      setState(() {
-        contacts = user.contacts ?? [];
-      });
+  void handleUserEvent(String userID, OnlineStatus status) {
+    var user = ref.read(userProvider);
+    if (userID == user.id.oid) {
+      return;
+    }
+
+    user.contacts?.firstWhere((element) => element.id.oid == userID).onlineStatus = status;
+    setState(() {
+      contacts = user.contacts ?? [];
     });
   }
 
