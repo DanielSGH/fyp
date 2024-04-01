@@ -22,7 +22,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   late String selectedLanguage;
-  bool isSigningUp = false;
+  bool isSigningUp  = false,
+       isLoading    = false;
 
   @override
   void initState() {
@@ -74,13 +75,22 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   void _handleAuth(Map<String, String> content, context) async { 
     try {
+      setState(() => isLoading = true);
       await ApiWrapper.authUser(content['username']!, content['password']!, content['selectedLanguage']!, content['email']);
       User user = await ApiWrapper.getUserInfo();
       ref.read(userProvider.notifier).setUser(user);
       gotoHomePage();
-    } catch (e) {
+    } 
+    on FormatException {
+      showError(Exception('Unable to connect to server'));
+      setState(() => isLoading = false); 
+    } 
+    catch (e) {
       inspect(e);
       showError(e);
+    }
+    finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -117,6 +127,14 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+        ),
+      );
+    }
+
     return Material(
       child: Container(
         decoration: const BoxDecoration(
@@ -151,15 +169,19 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   ),
                 ),
               const SizedBox(height: 30),
-              AuthButton(isSigningUp: isSigningUp, onPressed: () async => _handleAuth(
-                {
-                  "username": _usernameController.text, 
-                  if (isSigningUp) "email": _emailController.text, 
-                  "password": _passwordController.text,
-                  "selectedLanguage": selectedLanguage,
-                }, 
-                context
-              )),
+              AuthButton(
+                isSigningUp: isSigningUp, 
+                onPressed: () async {
+                  _handleAuth(
+                    {
+                      "username": _usernameController.text, 
+                      if (isSigningUp) "email": _emailController.text, 
+                      "password": _passwordController.text,
+                      "selectedLanguage": selectedLanguage,
+                    }, 
+                    context
+                  );
+                }),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => setState(() => isSigningUp = !isSigningUp), 
