@@ -30,9 +30,28 @@ class _ContactsViewState extends ConsumerState<ContactsView> {
     setContacts();
   }
 
+  @override
+  void dispose() {
+    socket.dispose();
+    super.dispose();
+  }
+
   void connect() { 
     socket = ref.read(socketIOProvider);
     ref.read(socketIOProvider.notifier).initSetup(ref.read(userProvider).messages);
+    socket.on('joined', (userID) {
+      print('setting online status for $userID');
+      var user = ref.read(userProvider);
+      if (userID == user.id.oid) {
+        return;
+      }
+
+
+      user.contacts?.firstWhere((element) => element.id.oid == userID).onlineStatus = OnlineStatus.online;
+      setState(() {
+        contacts = user.contacts ?? [];
+      });
+    });
   }
 
   void setContacts() {
