@@ -49,7 +49,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
   void checkNeedsSignup() async {
     var prefs = await ApiWrapper.apiPreferences;
-    prefs.clear();
+    // prefs.clear();
 
     if (!prefs.containsKey('refreshToken')) {
       setState(() {

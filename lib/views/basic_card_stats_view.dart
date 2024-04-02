@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fyp/classes/flashcards/enums/card_state.dart';
 import 'package:fyp/classes/flashcards/models/flashcard_model.dart';
 import 'package:fyp/providers/user_provider.dart';
+import 'package:fyp/views/all_card_stats_view.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 class BasicCardStatsView extends ConsumerStatefulWidget {
@@ -63,6 +64,7 @@ class BasicCardStatsViewState extends ConsumerState<BasicCardStatsView> {
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Card(
                   child: ListTile(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AllCardStatsView())),
                     title: Container(margin: const EdgeInsets.only(bottom: 20), child: const Text('Card States')),
                     subtitle: FittedBox(
                       child: SingleChildScrollView(

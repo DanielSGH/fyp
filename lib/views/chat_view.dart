@@ -46,7 +46,23 @@ class _ChatViewState extends ConsumerState<ChatView> {
     }
 
     getRoomIDHelper();
-    getMessages();
+    try {
+      getMessages();
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text("Failed to get messages..."),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void getRoomIDHelper() async {

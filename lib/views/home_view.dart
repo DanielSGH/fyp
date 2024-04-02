@@ -62,7 +62,7 @@ class _HomeViewState extends State<HomeView> {
                   label: 'Contacts',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.auto_stories),
+                  icon: Icon(Icons.crop_portrait),
                   label: 'Flashcards',
                 ),
               ],

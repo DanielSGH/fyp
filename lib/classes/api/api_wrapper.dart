@@ -151,13 +151,13 @@ class ApiWrapper {
     );
   }
 
-  static void delete(String type) async {
+  static Future<void> delete(String type) async {
     String endpoint = type == 'signout' ? '/auth/signout' : '/user/deleteAccount';
     String token = type == 'signout' ? 'refreshToken' : 'accessToken';
     var response = await sendDeleteReq(endpoint, (await apiPreferences).getString(token) ?? '');
 
-    apiPreferences.then((prefs) {
-      prefs.remove('accessToken');
+    apiPreferences.then((prefs) async {
+      await prefs.clear();
     });
 
     if (!isOk(response.statusCode)) {

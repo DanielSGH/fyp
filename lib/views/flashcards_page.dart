@@ -55,23 +55,24 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('Flashcards'),
-            // IconButton(
-            //   icon: const Icon(Icons.refresh),
-            //   onPressed: () {
-            //     setState(() {
-            //       int idx = dueCards.indexOf(currentCard);
-            //       if (idx < 1) {
-            //         return;
-            //       }
-
-            //       currentCard = reviewedCards.removeLast();
-            //     });
-            //   },
-            // ),
+            const Spacer(),
             IconButton(
-              icon: const Icon(Icons.menu),
+              icon: const Icon(Icons.refresh),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => BasicCardStatsView()));
+                setState(() {
+                  int idx = dueCards.indexOf(dueCards.firstWhere((card) => card.id.oid == currentCard.id.oid));
+                  if (idx < 1) {
+                    return;
+                  }
+
+                  currentCard = reviewedCards.removeLast();
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.pie_chart_rounded),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const BasicCardStatsView()));
               },
             ),
           ],
@@ -80,7 +81,7 @@ class _FlashcardsPageState extends ConsumerState<FlashcardsPage> {
       body: FlashcardWidget(
         flashCard: currentCard,
         changeCard: (CardRating rating) {
-          int idx = dueCards.indexOf(currentCard);
+          int idx = dueCards.indexOf(dueCards.firstWhere((card) => card.id.oid == currentCard.id.oid));
           FlashCard oldCard = FlashCard.copy(obj: dueCards[idx]);
           setState(() {
             reviewedCards.add(oldCard);

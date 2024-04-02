@@ -35,23 +35,15 @@ class SettingsView extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          // Sign out
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
-            onTap: () {
-              ApiWrapper.delete('signout');
-              sendToAuthView(context);
-            },
+            onTap: () => signOutDeleteAccountHandler(context, 'signout'),
           ),
-          // Delete account
           ListTile(
             leading: const Icon(Icons.delete),
             title: const Text('Delete Account'),
-            onTap: () {
-              ApiWrapper.delete('deleteAccount');
-              sendToAuthView(context);
-            },
+            onTap: () => signOutDeleteAccountHandler(context, 'deleteAccount'),
           ),
           const SizedBox(height: 20),
         ],
@@ -59,9 +51,33 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  void sendToAuthView(BuildContext context) {
+  void disconnectApp(BuildContext context, String type) async {
     socket.dispose();
-    Navigator.popUntil(context, ModalRoute.withName('/'));
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthView()));
+    ApiWrapper.delete(type).then((_) {
+      Navigator.popUntil(context, ModalRoute.withName('/'));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthView()));
+    }).catchError((error) {
+      throw Exception('Failed to disconnect'); // this should never happen
+    });
+  }
+
+  void signOutDeleteAccountHandler(BuildContext context, String type) {
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        actions: [
+          diaogButton(Colors.red, 'Yes', const TextStyle(color: Colors.white), () => disconnectApp(context, type), const Icon(Icons.check, color: Colors.white)),
+          diaogButton(Colors.green, 'No', const TextStyle(color: Colors.white), () => Navigator.pop(context), const Icon(Icons.close, color: Colors.white)),
+        ],
+        title: const Text('Are you sure?'),
+        content: const Text("Are you sure you want to perform this action?"),
+      )
+    );    
+  }
+
+  ElevatedButton diaogButton(Color color, String text, TextStyle style, Function() onPressed, [Icon? icon]) {
+    return icon == null 
+      ? ElevatedButton(onPressed: onPressed, style: ElevatedButton.styleFrom(backgroundColor: color), child: Text(text, style: style))
+      : ElevatedButton.icon(onPressed: onPressed, style: ElevatedButton.styleFrom(backgroundColor: color), icon: icon, label: Text(text, style: style));
   }
 }

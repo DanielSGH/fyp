@@ -68,40 +68,65 @@ class _CardStatsViewState extends ConsumerState<AllCardStatsView> {
 
   List<dynamic> getStats(FlashCard card) {
     Color color = getComputedColor(card.difficulty);
-    TextStyle style = TextStyle(color: color);
+    TextStyle style = TextStyle(color: color, fontSize: 80);
     return [
       Center(
-        child: Text(
-          card.word,
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+        child: Column(
+          children: [
+            Text(
+              card.word,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(card.english, style: TextStyle(fontSize: 20, overflow: TextOverflow.ellipsis, color: color)),
+            const SizedBox(height: 70),
+            Icon(Icons.speed, color: color),
+            Text(card.difficulty.toStringAsFixed(1), style: style),
+          ],
         ),
       ),
-      Center(child: Text(card.english, style: TextStyle(fontSize: 20, overflow: TextOverflow.ellipsis, color: color))),
-      Text("stability: ${card.stability.roundToDouble()}", style: style),
-      Text("difficulty: ${card.difficulty.roundToDouble()}", style: style),
-      Text("elapsedDays: ${card.elapsedDays}", style: style),
-      Text("scheduledDays: ${card.stability}", style: style),
-      Text("reps: ${card.reps}", style: style),
-      Text("lapses: ${card.lapses}", style: style),
-      Text("state: ${card.state.name}", style: style),
-      Text("lastReview: ${_getLastSeenTimeText(card.lastReview)}", style: style),
     ];
   }
 
   SizedBox statCard(int idx) {
     return SizedBox(
       width: MediaQuery.of(context).size.width / 2,
-      child: Card(
-        color: getColorFromValue(cards[idx].difficulty),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...getStats(cards[idx]),
-          ],
+      child: GestureDetector(
+        onTap: () {
+          var card = cards[idx];
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => SimpleDialog(
+                title: Text(card.word),
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        Text("Stability: ${card.stability.roundToDouble()}"),
+                        Text("Elapsed Days: ${card.elapsedDays}"),
+                        Text("Scheduled Days: ${card.stability}"),
+                        Text("Reps: ${card.reps}"),
+                        Text("Lapses: ${card.lapses}"),
+                        Text("State: ${card.state.name}"),
+                        Text("LastReview: ${_getLastSeenTimeText(card.lastReview)}"),
+                      ],
+                    ),
+                  ),
+                ]
+              ),
+          );
+        },
+        child: Card(
+          color: getColorFromValue(cards[idx].difficulty * 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...getStats(cards[idx]),
+            ],
+          ),
         ),
       ),
     );

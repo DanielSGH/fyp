@@ -57,7 +57,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                 textAlign: TextAlign.center)
               ),
             ),
-
+            const Spacer(), 
             Container(
               padding: const EdgeInsets.all(20),
               margin: const EdgeInsets.all(20),
@@ -84,76 +84,78 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
                 ),
               ),
             ),
-            
-            Container(
-              padding: const EdgeInsets.all(6),
-              margin: const EdgeInsets.fromLTRB(20, 0, 20, 50),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromARGB(150, 0, 0, 0),
-                    blurRadius: 20.0,
-                    offset: Offset(0, 10.0),
-                  )
-                ],
+                       
+            if (showEnglish)
+              Container(
+                padding: const EdgeInsets.all(6),
+                margin: const EdgeInsets.fromLTRB(20, 0, 20, 50),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromARGB(150, 0, 0, 0),
+                      blurRadius: 20.0,
+                      offset: Offset(0, 10.0),
+                    )
+                  ],
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.lightGreen,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                        ),
+                        child: FittedBox(
+                          child: MaterialButton(
+                            // padding: const EdgeInsets.all(27),
+                            onPressed: () => changeCardHandler(CardRating.Easy),
+                            child: const Icon(Icons.thumb_up),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        color: Colors.amber,
+                        child: FittedBox(
+                          child: MaterialButton(
+                            // padding: const EdgeInsets.all(27),
+                            onPressed: () => changeCardHandler(CardRating.Okay),
+                            child: const Icon(Icons.thumbs_up_down),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            bottomRight: Radius.circular(15),
+                          ),
+                        ),
+                        child: FittedBox(
+                          child: MaterialButton(
+                            // padding: const EdgeInsets.all(27),
+                            onPressed: () => changeCardHandler(CardRating.Poor),
+                            child: const Icon(Icons.thumb_down),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.lightGreen,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          bottomLeft: Radius.circular(15),
-                        ),
-                      ),
-                      child: FittedBox(
-                        child: MaterialButton(
-                          // padding: const EdgeInsets.all(27),
-                          onPressed: () => changeCardHandler(CardRating.Easy),
-                          child: const Text("Perfect"),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      color: Colors.amber,
-                      child: FittedBox(
-                        child: MaterialButton(
-                          // padding: const EdgeInsets.all(27),
-                          onPressed: () => changeCardHandler(CardRating.Okay),
-                          child: const Text("Okay"),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(15),
-                          bottomRight: Radius.circular(15),
-                        ),
-                      ),
-                      child: FittedBox(
-                        child: MaterialButton(
-                          // padding: const EdgeInsets.all(27),
-                          onPressed: () => changeCardHandler(CardRating.Poor),
-                          child: const Text("Poor"),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+            const Spacer(),
           ],
         )
       )
